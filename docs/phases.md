@@ -10,7 +10,7 @@ Priority when short: correct main tasks > live deploy > UX polish > bonus. Hard 
 | P3 | Match + Expiry + Status (4.3–4.5): reducer-enforced 1:1 + dup-group rule, unmatch/change, date input (cleared on change), status engine + Vitest, summary counts | ✅ done |
 | P4 | Generate + Download (4.7, 4.8, Sec. 6): blocker gating, buildPackage, one-page cover, footer strip, filename, success card; verify script on sample-pack | ✅ done |
 | P5 | QA + Submission: Bangla pass, edge cases, output/<id>_Package.pdf, screenshots/, README, deploy check | ✅ done |
-| P6 | Bonus (≥10 min left): CSV → index toggle (default OFF) → auto-match → IndexedDB → BN cover → seal | |
+| P6 | Bonus (≥10 min left): CSV → index toggle (default OFF) → auto-match → IndexedDB → BN cover → seal | ✅ done (CSV + Auto-match) |
 
 ## Sample-pack test cases (tender T-2026-0417, deadline 2026-10-20)
 | File | Pages | Finding / hidden problem | Expected handling |
