@@ -5,6 +5,7 @@ import { LoadTender } from './ui/LoadTender';
 import { TenderCard } from './ui/TenderCard';
 import { Checklist } from './ui/Checklist';
 import { FilesPanel } from './ui/FilesPanel';
+import { GenerateBar } from './ui/GenerateBar';
 
 export default function App() {
   const { state } = useApp();
@@ -27,6 +28,7 @@ export default function App() {
           </div>
         )}
       </main>
+      {state.tender && <GenerateBar />}
     </div>
   );
 }

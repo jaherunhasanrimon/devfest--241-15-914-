@@ -3,12 +3,15 @@ import { reducer, initialState, initialLang, persistLang, type Action, type AppS
 import { dicts, type Dict } from '../i18n';
 import { sortRequirements } from '../core/tender';
 import type { Requirement } from '../core/types';
+import { computeStatuses, summarize, type StatusRow } from '../core/status';
 
 interface Ctx {
   state: AppState;
   dispatch: Dispatch<Action>;
   t: Dict;
   sortedReqs: Requirement[];
+  rows: StatusRow[];
+  summary: ReturnType<typeof summarize>;
 }
 
 const AppContext = createContext<Ctx | null>(null);
@@ -30,9 +33,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [state.generated]);
 
   const sortedReqs = useMemo(() => sortRequirements(state.requirements), [state.requirements]);
+  const rows = useMemo(
+    () => computeStatuses(sortedReqs, state.matches, state.expiries, state.tender?.submission_deadline ?? ''),
+    [sortedReqs, state.matches, state.expiries, state.tender],
+  );
+  const summary = useMemo(() => summarize(rows), [rows]);
   const value = useMemo(
-    () => ({ state, dispatch, t: dicts[state.lang], sortedReqs }),
-    [state, sortedReqs],
+    () => ({ state, dispatch, t: dicts[state.lang], sortedReqs, rows, summary }),
+    [state, sortedReqs, rows, summary],
   );
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

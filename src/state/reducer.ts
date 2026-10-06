@@ -1,4 +1,6 @@
 import type { FileEntry, Lang, Requirement, Tender } from '../core/types';
+import { canMatch } from '../core/matching';
+import { isIsoDate } from '../core/tender';
 
 export interface Generated {
   url: string;
@@ -20,7 +22,9 @@ export type Action =
   | { type: 'loadTender'; tender: Tender; requirements: Requirement[] }
   | { type: 'setLang'; lang: Lang }
   | { type: 'addFiles'; files: FileEntry[] }
-  | { type: 'removeFile'; fileId: string };
+  | { type: 'removeFile'; fileId: string }
+  | { type: 'match'; reqId: string; fileId: string | null }
+  | { type: 'setExpiry'; reqId: string; date: string };
 
 const LANG_KEY = 'tpb.lang';
 
@@ -87,6 +91,31 @@ export function reducer(state: AppState, action: Action): AppState {
         matches,
         expiries,
       });
+    }
+    case 'match': {
+      const { reqId, fileId } = action;
+      const current = state.matches[reqId];
+      if ((current ?? null) === fileId) return state; // unchanged: keep the date
+      const matches = { ...state.matches };
+      const expiries = { ...state.expiries };
+      if (fileId === null) {
+        delete matches[reqId];
+      } else {
+        const check = canMatch(reqId, fileId, state.files, state.matches, state.requirements.map((r) => r.id));
+        if (!check.ok) return state; // rule enforced here, not only in the UI
+        matches[reqId] = fileId;
+      }
+      delete expiries[reqId]; // any change of match clears the expiry date
+      return invalidate({ ...state, matches, expiries });
+    }
+    case 'setExpiry': {
+      const req = state.requirements.find((r) => r.id === action.reqId);
+      if (!req || !req.has_expiry || !state.matches[action.reqId]) return state;
+      const expiries = { ...state.expiries };
+      if (action.date && isIsoDate(action.date)) expiries[action.reqId] = action.date;
+      else delete expiries[action.reqId];
+      if (expiries[action.reqId] === state.expiries[action.reqId]) return state;
+      return invalidate({ ...state, expiries });
     }
     default:
       return state;
