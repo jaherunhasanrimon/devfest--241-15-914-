@@ -5,4 +5,4 @@ sample-pack
 *.local
 .prompts.log
 *.tsbuildinfo
-output
+output/test
