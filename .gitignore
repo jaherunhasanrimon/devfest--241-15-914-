@@ -4,3 +4,4 @@ sample-pack
 .DS_Store
 *.local
 .prompts.log
+*.tsbuildinfo
