@@ -86,6 +86,21 @@ export const en = {
     failed: (file: string) => `Could not build the package: “${file}” could not be read. Remove it or use another copy.`,
     failedGeneric: 'Could not build the package. Please try again.',
   },
+  bonus: {
+    exportCsv: 'Export CSV',
+    exportCsvLabel: 'Download spreadsheet summary of all requirements and matched files',
+    autoMatch: 'Auto-match files',
+    autoMatchLabel: 'Automatically match files to requirements by name',
+    autoMatchedToast: (n: number) => (n === 1 ? '1 document automatically matched' : `${n} documents automatically matched`),
+    noAutoMatchesToast: 'No new automatic matches found',
+    csvHeaders: {
+      document: 'Document',
+      file: 'File',
+      pages: 'Pages',
+      expiry: 'Expiry Date',
+      status: 'Status',
+    },
+  },
   files: {
     heading: 'Your files',
     emptyNoTender: 'Open the requirements file first, then add your PDF files here.',

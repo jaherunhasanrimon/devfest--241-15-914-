@@ -24,6 +24,7 @@ export type Action =
   | { type: 'addFiles'; files: FileEntry[] }
   | { type: 'removeFile'; fileId: string }
   | { type: 'match'; reqId: string; fileId: string | null }
+  | { type: 'batchMatch'; matches: Record<string, string> }
   | { type: 'setExpiry'; reqId: string; date: string }
   | { type: 'setGenerated'; generated: Generated };
 
@@ -107,6 +108,16 @@ export function reducer(state: AppState, action: Action): AppState {
         matches[reqId] = fileId;
       }
       delete expiries[reqId]; // any change of match clears the expiry date
+      return invalidate({ ...state, matches, expiries });
+    }
+    case 'batchMatch': {
+      const matches = { ...state.matches, ...action.matches };
+      const expiries = { ...state.expiries };
+      for (const [reqId, newFid] of Object.entries(action.matches)) {
+        if (state.matches[reqId] !== newFid) {
+          delete expiries[reqId];
+        }
+      }
       return invalidate({ ...state, matches, expiries });
     }
     case 'setExpiry': {
