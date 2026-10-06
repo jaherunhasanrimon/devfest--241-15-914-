@@ -24,7 +24,8 @@ export type Action =
   | { type: 'addFiles'; files: FileEntry[] }
   | { type: 'removeFile'; fileId: string }
   | { type: 'match'; reqId: string; fileId: string | null }
-  | { type: 'setExpiry'; reqId: string; date: string };
+  | { type: 'setExpiry'; reqId: string; date: string }
+  | { type: 'setGenerated'; generated: Generated };
 
 const LANG_KEY = 'tpb.lang';
 
@@ -117,6 +118,8 @@ export function reducer(state: AppState, action: Action): AppState {
       if (expiries[action.reqId] === state.expiries[action.reqId]) return state;
       return invalidate({ ...state, expiries });
     }
+    case 'setGenerated':
+      return { ...state, generated: action.generated };
     default:
       return state;
   }

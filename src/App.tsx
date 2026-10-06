@@ -12,7 +12,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <Header />
-      <main className="mx-auto max-w-7xl px-4 pb-32 sm:px-6">
+      <main className="mx-auto max-w-7xl px-4 pb-64 sm:px-6">
         <StepRail />
         {!state.tender ? (
           <LoadTender />
