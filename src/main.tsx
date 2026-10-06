@@ -8,12 +8,15 @@ import '@fontsource/noto-sans-bengali/600.css';
 import '@fontsource/noto-sans-bengali/700.css';
 import './index.css';
 import { AppProvider } from './state/AppContext';
+import { ToastProvider } from './ui/Toasts';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppProvider>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </AppProvider>
   </StrictMode>,
 );

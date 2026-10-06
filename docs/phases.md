@@ -5,8 +5,8 @@ Priority when short: correct main tasks > live deploy > UX polish > bonus. Hard 
 
 | Phase | Scope (spec §) | Status |
 |---|---|---|
-| P1 | Foundation + Load (4.1, 4.10 shell): scaffold, tokens, i18n, load/validate JSON (picker + drag-drop), tender card, sorted localized checklist, GitHub Pages auto-deploy | in progress |
-| P2 | Upload + Duplicates (4.2, 4.6): multi-upload, ext+magic validation, page counts, preview, remove, bad-file messages, limits, duplicate badges | |
+| P1 | Foundation + Load (4.1, 4.10 shell): scaffold, tokens, i18n, load/validate JSON (picker + drag-drop), tender card, sorted localized checklist, GitHub Pages auto-deploy | ✅ done |
+| P2 | Upload + Duplicates (4.2, 4.6): multi-upload, ext+magic validation, page counts, preview, remove, bad-file messages, limits, duplicate badges | in progress |
 | P3 | Match + Expiry + Status (4.3–4.5): reducer-enforced 1:1 + dup-group rule, unmatch/change, date input (cleared on change), status engine + Vitest, summary counts | |
 | P4 | Generate + Download (4.7, 4.8, Sec. 6): blocker gating, buildPackage, one-page cover, footer strip, filename, success card; verify script on sample-pack | |
 | P5 | QA + Submission: Bangla pass, edge cases, output/<id>_Package.pdf, screenshots/, README, deploy check | |

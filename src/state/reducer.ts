@@ -18,7 +18,9 @@ export interface AppState {
 
 export type Action =
   | { type: 'loadTender'; tender: Tender; requirements: Requirement[] }
-  | { type: 'setLang'; lang: Lang };
+  | { type: 'setLang'; lang: Lang }
+  | { type: 'addFiles'; files: FileEntry[] }
+  | { type: 'removeFile'; fileId: string };
 
 const LANG_KEY = 'tpb.lang';
 
@@ -66,6 +68,26 @@ export function reducer(state: AppState, action: Action): AppState {
       });
     case 'setLang':
       return { ...state, lang: action.lang };
+    case 'addFiles':
+      if (action.files.length === 0) return state;
+      return invalidate({ ...state, files: [...state.files, ...action.files] });
+    case 'removeFile': {
+      if (!state.files.some((f) => f.id === action.fileId)) return state;
+      const matches = { ...state.matches };
+      const expiries = { ...state.expiries };
+      for (const [reqId, fid] of Object.entries(matches)) {
+        if (fid === action.fileId) {
+          delete matches[reqId];
+          delete expiries[reqId];
+        }
+      }
+      return invalidate({
+        ...state,
+        files: state.files.filter((f) => f.id !== action.fileId),
+        matches,
+        expiries,
+      });
+    }
     default:
       return state;
   }
