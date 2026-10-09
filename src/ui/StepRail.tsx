@@ -2,38 +2,56 @@ import { useApp } from '../state/AppContext';
 import { num } from '../i18n';
 
 export function StepRail() {
-  const { state, t } = useApp();
-  const matched = Object.keys(state.matches).length > 0;
-  const done = [!!state.tender, state.files.length > 0, matched, !!state.generated];
-  const current = done.indexOf(false) === -1 ? 3 : done.indexOf(false);
-  const labels = [t.steps.load, t.steps.files, t.steps.match, t.steps.generate];
+  const { state, t, summary } = useApp();
+
+  const isTenderLoaded = !!state.tender;
+  const hasFiles = state.files.length > 0;
+  const noBlockers = isTenderLoaded && hasFiles && summary.blockers.length === 0;
+  const isGenerated = !!state.generated;
+
+  const done = [isTenderLoaded, hasFiles, noBlockers, isGenerated];
+
+  let currentIdx = 0;
+  if (!isTenderLoaded) currentIdx = 0;
+  else if (!hasFiles) currentIdx = 1;
+  else if (!noBlockers) currentIdx = 2;
+  else if (!isGenerated) currentIdx = 3;
+  else currentIdx = 3;
+
+  const labels = [t.step.open, t.step.add, t.step.match, t.step.create];
+
   return (
-    <nav aria-label={t.steps.label} className="my-6">
+    <nav aria-label={t.step.match} className="my-5">
       <ol className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {labels.map((label, i) => {
           const isDone = done[i];
-          const isCur = i === current && !isDone;
+          const isCurrent = i === currentIdx && !isDone;
+
           return (
             <li
               key={i}
-              aria-current={isCur ? 'step' : undefined}
-              className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+              aria-current={isCurrent ? 'step' : undefined}
+              className={`flex items-center gap-2.5 rounded-[6px] border px-3 py-2 text-sm font-medium transition ${
                 isDone
-                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                  : isCur
-                    ? 'border-primary-600 bg-white text-primary-800 shadow-card'
-                    : 'border-slate-200 bg-white/60 text-slate-500'
+                  ? 'border-[var(--ok)] bg-[var(--ok-soft)] text-[var(--ok)]'
+                  : isCurrent
+                    ? 'border-[var(--primary)] bg-[var(--surface)] text-[var(--primary)] ring-2 ring-[var(--primary-soft)]'
+                    : 'border-[var(--line)] bg-[var(--surface)] text-[var(--ink-muted)]'
               }`}
             >
               <span
-                aria-hidden
-                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold ${
-                  isDone ? 'bg-emerald-600 text-white' : isCur ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-600'
+                aria-hidden="true"
+                className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                  isDone
+                    ? 'bg-[var(--ok)] text-white'
+                    : isCurrent
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'bg-[var(--line)] text-[var(--ink-muted)]'
                 }`}
               >
                 {isDone ? '✓' : num(i + 1, state.lang)}
               </span>
-              {label}
+              <span className="truncate">{label}</span>
             </li>
           );
         })}

@@ -8,7 +8,6 @@ import boldUrl from '../assets/fonts/NotoSans-Bold.ttf?url';
 
 let fontCache: Promise<{ regular: Uint8Array; bold: Uint8Array }> | null = null;
 function loadFonts() {
-  // Bundled same-origin assets (no CDN).
   fontCache ??= Promise.all([regularUrl, boldUrl].map(async (u) => new Uint8Array(await (await fetch(u)).arrayBuffer())))
     .then(([regular, bold]) => ({ regular, bold }))
     .catch((e) => { fontCache = null; throw e; });
@@ -17,16 +16,15 @@ function loadFonts() {
 
 type Err = { kind: 'file'; name: string } | { kind: 'generic' } | null;
 
-/** Sticky bottom bar: summary, blocking reasons (click → row), Generate, progress, success / outdated card. */
 export function GenerateBar() {
   const { state, dispatch, t, summary, rows } = useApp();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<Err>(null);
   const [hadPackage, setHadPackage] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const n = summary.blockers.length;
   const lang = state.lang;
 
-  // Inputs that define the package; if any changes while building, the result is discarded.
   const inputs = { tender: state.tender, files: state.files, matches: state.matches, expiries: state.expiries };
   const inputsRef = useRef(inputs);
   inputsRef.current = inputs;
@@ -69,88 +67,151 @@ export function GenerateBar() {
   const outdated = !g && hadPackage;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 shadow-[0_-8px_24px_rgb(15_23_42/0.06)] backdrop-blur">
+    <div
+      role="region"
+      aria-label="Action bar"
+      className="action-bar-shadow fixed inset-x-0 bottom-0 z-30 border-t border-[var(--line)] bg-[var(--surface)]"
+    >
       <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
-        {g && (
-          <div role="status" className="animate-rise mb-3 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 sm:p-4">
-            <span aria-hidden className="grid h-10 w-10 place-items-center rounded-full bg-emerald-600 text-lg text-white">✓</span>
-            <div className="min-w-0 flex-1">
-              <p className="font-bold text-emerald-900">{t.generate.successTitle}</p>
-              <p className="break-all text-sm text-emerald-800">{t.generate.successBody(g.pageCount, g.fileName)}</p>
-            </div>
-            <a id="preview-package-link" href={g.url} target="_blank" rel="noopener" className="btn-ghost text-sm">
-              {t.generate.preview}
-            </a>
-            <a id="download-package-btn" href={g.url} download={g.fileName} className="btn-primary min-h-12 bg-emerald-600 px-6 text-base hover:bg-emerald-700">
-              <span aria-hidden>⬇</span> {t.generate.download}
-            </a>
-          </div>
-        )}
+        {/* Outdated Stale Notice */}
         {outdated && !busy && (
-          <p role="status" className="mb-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900">
-            <span aria-hidden>↻ </span>{t.generate.outdated}
-          </p>
-        )}
-        {err && (
-          <p role="alert" className="mb-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
-            {err.kind === 'file' ? t.generate.failed(err.name) : t.generate.failedGeneric}
-          </p>
-        )}
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-3" aria-live="polite">
-            <span className="text-base font-semibold text-slate-900">{t.summary.ready(summary.ready, summary.total)}</span>
-            <span aria-hidden className="text-slate-300">·</span>
-            <span className={`chip ring-1 ${n ? 'bg-red-50 text-red-800 ring-red-200' : 'bg-emerald-50 text-emerald-800 ring-emerald-200'}`}>
-              <span aria-hidden>{n ? '!' : '✓'}</span> {t.summary.problems(n)}
-            </span>
-          </div>
-
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2" id="generate-reasons">
-            {n > 0 ? (
-              <>
-                <span className="text-sm text-slate-600">{t.generate.blockedTitle}</span>
-                {summary.blockers.map((b) => {
-                  const name = reqName(b.req, lang);
-                  return (
-                    <button
-                      key={b.req.id}
-                      id={`reason-${b.req.id}`}
-                      onClick={() => goTo(b.req.id)}
-                      aria-label={`${t.generate.goTo(name)} — ${t.status[b.status]}`}
-                      className={`min-h-9 max-w-full truncate rounded-lg px-2.5 text-sm font-medium underline-offset-2 hover:underline ${
-                        b.status === 'expiryNeeded' ? 'bg-amber-50 text-amber-900 ring-1 ring-amber-200' : 'bg-red-50 text-red-800 ring-1 ring-red-200'
-                      }`}
-                    >
-                      {t.generate.reason(name, t.status[b.status])}
-                    </button>
-                  );
-                })}
-              </>
-            ) : (
-              !g && <span className="text-sm text-emerald-800">{t.generate.readyHint}</span>
-            )}
-          </div>
-
-          <button
-            id="generate-btn"
-            onClick={generate}
-            disabled={n > 0 || busy}
-            aria-describedby="generate-reasons"
-            className="btn-primary ml-auto min-h-12 px-6 text-base"
+          <div
+            role="status"
+            className="mb-2 flex items-center gap-2 rounded-[6px] border border-[var(--needs)] bg-[var(--needs-soft)] px-3 py-2 text-sm font-medium text-[var(--needs)]"
           >
-            {busy ? (
-              <>
-                <span aria-hidden className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                {t.generate.working}
-              </>
-            ) : g || outdated ? (
-              t.generate.again
-            ) : (
-              t.generate.button
-            )}
-          </button>
-        </div>
+            <span>⚠️</span>
+            <span>{t.package.stale}</span>
+          </div>
+        )}
+
+        {/* Error Notice */}
+        {err && (
+          <div
+            role="alert"
+            className="mb-2 rounded-[6px] border border-[var(--missing)] bg-[var(--missing-soft)] px-3 py-2 text-sm font-medium text-[var(--missing)]"
+          >
+            {err.kind === 'file' ? t.package.failed(err.name) : t.package.failedGeneric}
+          </div>
+        )}
+
+        {/* Package Result Panel (when ready and not outdated) */}
+        {g && !outdated ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 py-1">
+            <div className="flex items-center gap-2.5">
+              <span
+                aria-hidden="true"
+                className="grid h-7 w-7 place-items-center rounded-full bg-[var(--ok)] text-xs text-white font-bold"
+              >
+                ✓
+              </span>
+              <div>
+                <p className="font-semibold text-[var(--ink)]">
+                  {t.package.ready(g.pageCount, Object.keys(state.matches).length)}
+                </p>
+                <p className="text-xs text-[var(--ink-muted)]">{g.fileName}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <a
+                id="preview-package-link"
+                href={g.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-base btn-secondary min-h-[44px] text-sm"
+              >
+                {t.action.preview}
+              </a>
+              <a
+                id="download-package-btn"
+                href={g.url}
+                download={g.fileName}
+                className="btn-base btn-primary min-h-[44px] text-base"
+              >
+                {t.action.download(g.fileName)}
+              </a>
+            </div>
+          </div>
+        ) : (
+          /* Normal State: Blocked or Ready */
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            {/* Left side: Status summary and clickable blocker links */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2" aria-live="polite">
+                {n > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((prev) => !prev)}
+                    className="flex items-center gap-1.5 text-left font-bold text-[var(--missing)] hover:underline md:cursor-default md:no-underline"
+                  >
+                    <span aria-hidden="true">▲</span>
+                    <span>{t.action.fix(n)}</span>
+                    <span className="text-xs font-normal md:hidden">({expanded ? 'hide' : 'show'})</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 font-semibold text-[var(--ok)]">
+                    <span
+                      aria-hidden="true"
+                      className="grid h-5 w-5 place-items-center rounded-full bg-[var(--ok)] text-xs text-white"
+                    >
+                      ✓
+                    </span>
+                    <span>{t.action.ready}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Reasons list */}
+              {n > 0 && (
+                <div
+                  id="action-bar-reasons"
+                  className={`mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm ${
+                    expanded ? 'flex' : 'hidden md:flex'
+                  }`}
+                >
+                  {summary.blockers.map((b) => {
+                    const reqTitle = reqName(b.req, lang);
+                    const statusText = t.status[b.status === 'expiryNeeded' ? 'expiry_needed' : b.status === 'notProvided' ? 'not_provided' : b.status];
+                    return (
+                      <button
+                        key={b.req.id}
+                        type="button"
+                        id={`reason-${b.req.id}`}
+                        onClick={() => goTo(b.req.id)}
+                        className="inline-flex items-center gap-1 text-[var(--ink-muted)] hover:text-[var(--ink)] hover:underline"
+                      >
+                        <span aria-hidden="true">•</span>
+                        <span>{t.action.reason(reqTitle, statusText)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Create package button */}
+            <div className="flex items-center justify-end shrink-0">
+              <button
+                id="generate-btn"
+                type="button"
+                onClick={generate}
+                disabled={busy}
+                aria-disabled={n > 0 || busy}
+                aria-describedby={n > 0 ? 'action-bar-reasons' : undefined}
+                className="btn-base btn-primary min-h-[44px] px-6 text-base"
+              >
+                {busy ? (
+                  <>
+                    <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>{t.action.creating}</span>
+                  </>
+                ) : (
+                  <span>{t.action.create}</span>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

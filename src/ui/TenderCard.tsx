@@ -1,43 +1,61 @@
 import { useApp } from '../state/AppContext';
 import { useTenderLoader } from './LoadTender';
-import { num } from '../i18n';
+import { formatDateLong } from '../i18n';
 
 export function TenderCard() {
   const { state, t } = useApp();
   const { open, input, errText } = useTenderLoader();
   const td = state.tender!;
-  const rows: [string, string][] = [
-    [t.tender.title, td.title],
-    [t.tender.entity, td.procuring_entity],
-    [t.tender.bidder, td.bidder],
-  ];
+
+  const formattedDeadline = formatDateLong(td.submission_deadline, state.lang);
+
   return (
-    <section aria-labelledby="tender-heading" className="card animate-rise overflow-hidden">
-      <div className="flex flex-wrap items-start justify-between gap-4 bg-gradient-to-r from-primary-600 to-indigo-600 px-6 py-5 text-white">
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-blue-100">{t.tender.heading} · {t.tender.id}</p>
-          <h2 id="tender-heading" className="mt-0.5 break-words text-2xl font-bold">{td.tender_id}</h2>
+    <section aria-labelledby="tender-title" className="panel p-6">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+        <div className="min-w-0 flex-1 space-y-2">
+          <h2 id="tender-title" className="break-words text-[28px] font-bold leading-tight text-[var(--ink)] sm:text-[30px]">
+            {td.title}
+          </h2>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-base text-[var(--ink-muted)]">
+            <span className="font-semibold text-[var(--ink)]">{td.tender_id}</span>
+            <span aria-hidden="true">•</span>
+            <span>{td.procuring_entity}</span>
+          </div>
+          <p className="text-base text-[var(--ink-muted)]">
+            <span className="font-medium">{t.header.bidder}:</span> {td.bidder}
+          </p>
         </div>
-        <div className="rounded-xl bg-white/15 px-4 py-2 text-right ring-1 ring-white/25">
-          <p className="text-xs font-medium uppercase tracking-wide text-blue-100">{t.tender.deadline}</p>
-          <p className="text-lg font-bold tabular-nums">{num(td.submission_deadline, state.lang)}</p>
+
+        <div className="shrink-0 rounded-[6px] border border-[var(--line)] bg-[var(--canvas)] p-3 text-left md:min-w-[190px] md:text-right">
+          <p className="text-sm font-medium text-[var(--ink-muted)]">
+            {t.header.deadline}
+          </p>
+          <p className="mt-0.5 text-lg font-bold text-[var(--ink)] sm:text-xl">
+            {formattedDeadline}
+          </p>
         </div>
       </div>
-      <dl className="grid gap-4 px-6 py-5 sm:grid-cols-3">
-        {rows.map(([k, v]) => (
-          <div key={k} className="min-w-0">
-            <dt className="text-sm text-slate-500">{k}</dt>
-            <dd className="mt-0.5 break-words font-semibold text-slate-900">{v}</dd>
-          </div>
-        ))}
-      </dl>
-      <div className="border-t border-slate-100 px-6 py-3">
-        <button id="replace-tender-btn" onClick={open} className="text-sm font-semibold text-primary-700 hover:underline">
-          {t.load.replace}
+
+      <div className="mt-4 flex items-center justify-between border-t border-[var(--line)] pt-3">
+        <button
+          id="replace-tender-btn"
+          type="button"
+          onClick={open}
+          className="text-sm font-semibold text-[var(--primary)] hover:underline"
+        >
+          {t.open.replace}
         </button>
         {input}
-        {errText && <p role="alert" className="mt-2 text-sm text-red-700">{errText}</p>}
       </div>
+
+      {errText && (
+        <div
+          role="alert"
+          className="mt-3 rounded-[6px] border border-[var(--missing)] bg-[var(--missing-soft)] p-3 text-sm text-[var(--missing)]"
+        >
+          {errText}
+        </div>
+      )}
     </section>
   );
 }

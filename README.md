@@ -8,8 +8,8 @@ Built for the **AI DevFest 2026** contest.
 
 ## Live Demo & Offline Ready
 
-- **Live URL:** [Vercel App]([https://jaherunhasanrimon.github.io/devfest--241-15-914-/](https://devfest-241-15-914-tender.vercel.app/))
-- **Zero Backend / Zero CDN:** All logic runs client-side in Google Chrome / modern browsers. Fonts (Inter, Noto Sans Bengali, Noto Sans TTF) are bundled locally. Works completely offline.
+- **Live URL:** [Vercel App](https://devfest-241-15-914-tender.vercel.app/) | [GitHub Pages](https://jaherunhasanrimon.github.io/devfest--241-15-914-/)
+- **Zero Backend / Zero CDN:** All logic runs client-side in Google Chrome / modern browsers. Fonts (Public Sans, Noto Sans Bengali, Noto Sans TTF) are bundled locally. Works completely offline.
 
 ---
 

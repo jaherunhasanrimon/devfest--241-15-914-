@@ -14,4 +14,18 @@ export function num(n: number | string, lang: Lang): string {
   return lang === 'bn' ? toBnDigits(n) : String(n);
 }
 
+/** Formats an ISO YYYY-MM-DD date into long form via Intl.DateTimeFormat in UTC. */
+export function formatDateLong(isoDate: string, lang: Lang): string {
+  if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return isoDate;
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  const locale = lang === 'bn' ? 'bn-BD' : 'en-GB';
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
+
 export type { Dict };

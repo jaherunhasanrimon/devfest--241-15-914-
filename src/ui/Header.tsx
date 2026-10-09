@@ -33,9 +33,8 @@ export function Header() {
               role="radio"
               aria-checked={state.lang === o.v}
               onClick={() => dispatch({ type: 'setLang', lang: o.v })}
-              className={`min-h-9 min-w-14 rounded-lg px-3 text-sm font-semibold transition ${
-                state.lang === o.v ? 'bg-white text-primary-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`min-h-9 min-w-14 rounded-lg px-3 text-sm font-semibold transition ${state.lang === o.v ? 'bg-white text-primary-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               {o.label}
             </button>

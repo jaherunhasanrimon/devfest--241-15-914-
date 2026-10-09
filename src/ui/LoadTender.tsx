@@ -89,9 +89,8 @@ export function LoadTender() {
         setOver(false);
         void handle(e.dataTransfer.files?.[0]);
       }}
-      className={`card animate-rise mx-auto max-w-2xl border-2 border-dashed p-8 text-center transition sm:p-12 ${
-        over ? 'border-primary-600 bg-primary-50' : 'border-slate-300'
-      }`}
+      className={`card animate-rise mx-auto max-w-2xl border-2 border-dashed p-8 text-center transition sm:p-12 ${over ? 'border-primary-600 bg-primary-50' : 'border-slate-300'
+        }`}
     >
       <div aria-hidden className="mx-auto mb-6 grid h-20 w-20 place-items-center rounded-3xl bg-primary-100 text-primary-700">
         <svg viewBox="0 0 24 24" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.8">
